@@ -1,5 +1,7 @@
 #include "testApp.h"
 
+#define min(a, b)  (((a) < (b)) ? (a) : (b)) 
+
 //--------------------------------------------------------------
 void testApp::setup(){
 	//img.loadImage("test.jpg");
@@ -8,7 +10,14 @@ void testApp::setup(){
     vidGrabber.initGrabber(rayx,rayy);
     colorImg.allocate(rayx,rayy);
 	grayImage.allocate(rayx,rayy);
+    finderblobssize = 0;
+    // open an outgoing connection to HOST:PORT
+	sender.setup(HOST, PORT);
+}
 
+int compare (const void * a, const void * b)
+{
+    return ( ((ofVec2f*)a)->x - ((ofVec2f*)b)->x );
 }
 
 //--------------------------------------------------------------
@@ -17,17 +26,33 @@ void testApp::update(){
     colorImg.setFromPixels(vidGrabber.getPixels(), rayx,rayy);
     grayImage = colorImg;
     finder.findHaarObjects(grayImage);
-    ofSleepMillis(2000);
+    
+    ofSleepMillis(raysleep);
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
+#ifdef RAYDRAW
 	grayImage.draw(0, 0);
 	ofNoFill();
-	for(int i = 0; i < finder.blobs.size(); i++) {
-		ofRectangle cur = finder.blobs[i].boundingRect;
-		ofRect(cur.x, cur.y, cur.width, cur.height);
+#endif
+    finderblobssize = min(finder.blobs.size(),MAX_N_PTS) ;
+    for(int i = 0; i < finderblobssize; i++) {
+        ofRectangle cur = finder.blobs[i].boundingRect;
+		pts[i].set(cur.x + cur.width/2, cur.y + cur.height/2);
+        ofRect(cur.x, cur.y, cur.width, cur.height);
 	}
+    qsort(pts, finderblobssize, sizeof(ofVec2f), compare);
+    int mmsleep = raysleep / (finderblobssize+1) ; 
+	for(int i = 0; i < finderblobssize; i++) 
+    {
+        mm.setAddress("/D" + ofToString( ( (int)pts[i].x << 6 ) / rayx) );
+        mm.addIntArg(64);
+        sender.sendMessage(mm);
+        mm.clear();
+        //ofRect(pts[i].x, pts[i].y, 20, 20);
+        ofSleepMillis(mmsleep);
+    }
 }
 
 //--------------------------------------------------------------

@@ -2,16 +2,22 @@
 
 #include "ofMain.h"
 #include "ofxCvHaarFinder.h"
-#define rayx    640
-#define rayy    480
+#include "ofxOsc.h"
+
+#define rayx    960
+#define rayy    720
+#define MAX_N_PTS         15
+//#define RAYDRAW
+#define HOST "localhost"
+#define PORT 12345
+#define raysleep 300
 
 class testApp : public ofBaseApp{
 	public:
 		void setup();
 		void update();
 		void draw();
-		
-		void keyPressed(int key);
+        void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
 		void mouseDragged(int x, int y, int button);
@@ -20,14 +26,15 @@ class testApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);		
-
+    
 		//ofImage img;
 		ofxCvHaarFinder finder;
-    
         ofxCvColorImage			colorImg;
-    
         ofxCvGrayscaleImage 	grayImage;
+        ofVideoGrabber 		vidGrabber;    
+        ofVec2f	pts[MAX_N_PTS];
+        ofxOscSender sender;
+        ofxOscMessage mm;
     
-        ofVideoGrabber 		vidGrabber;
-    
+        int finderblobssize;
 };
