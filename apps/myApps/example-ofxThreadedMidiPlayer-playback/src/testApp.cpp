@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void testApp::setup()
 {
+    ofSaveURLTo("http://ray.dac.tw/snoop_dogg-the_shiznit.mid", "snoop_dogg-the_shiznit.mid");
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	
 	ofxThreadedMidiPlayer * thread = new ofxThreadedMidiPlayer();
