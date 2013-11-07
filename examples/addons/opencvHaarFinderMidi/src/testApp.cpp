@@ -46,15 +46,15 @@ void testApp::draw(){
     int mmsleep = raysleep / (finderblobssize+1) ; 
 	for(int i = 0; i < finderblobssize; i++) 
     {
-        mm.setAddress("/D57");
-        //mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
+        //mm.setAddress("/D57");
+        mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
         mm.addIntArg(100);
         sender.sendMessage(mm);
         mm.clear();
         //ofRect(pts[i].x, pts[i].y, 20, 20);
         ofSleepMillis(mmsleep);
-        mm.setAddress("/D57");
-        //mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
+        //mm.setAddress("/D57");
+        mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
         mm.addIntArg(0);
         sender.sendMessage(mm);
         mm.clear();

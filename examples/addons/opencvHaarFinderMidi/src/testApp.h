@@ -8,7 +8,7 @@
 #define rayy    720
 #define MAX_N_PTS         15
 #define RAYDRAW
-#define HOST "192.168.11.255"
+#define HOST "192.168.11.157"
 #define PORT 12345
 #define raysleep 300
 
