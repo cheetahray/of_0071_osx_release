@@ -2,6 +2,27 @@
 
 #define min(a, b)  (((a) < (b)) ? (a) : (b)) 
 
+Poco::Timestamp::TimeDiff hdelay = 300000; // delay between 2 events, in microseconds
+Poco::Timestamp::TimeDiff nextTime = 0;    // time when next event occurs (calculated in seqTimerFunc)
+
+void seqTimer::seqTimerFunc(Poco::Timestamp::TimeDiff curTime)
+// Events that are regularly sent are processed here
+{
+    if(curTime >= nextTime)
+    {
+        nextTime += hdelay;
+        for(int rayi = 0; rayi < 64; rayi++)
+        {
+            if(sixtyfour[rayi] > 0)
+            {
+                sixtyfour[rayi]--;
+            }
+        }
+        //cout <<  (long)(curTime / 1000) <<  " .. " << (long)(nextTime / 1000) << endl;
+        // Execute real messages (midi etc) here ...
+    }
+}
+
 //--------------------------------------------------------------
 void testApp::setup(){
 	//img.loadImage("test.jpg");
@@ -13,6 +34,10 @@ void testApp::setup(){
     finderblobssize = 0;
     // open an outgoing connection to HOST:PORT
 	sender.setup(HOST, PORT);
+    
+    // and in the method void testApp::setup()
+    timer = new Timer(0, 10); // parameters : immediate and delay of 10 milliseconds (fast enough i think)
+    timer->start(TimerCallback<seqTimer>(sTimer, &seqTimer::onTimer), Thread::PRIO_HIGHEST);
 }
 
 int compare (const void * a, const void * b)
@@ -43,21 +68,35 @@ void testApp::draw(){
         ofRect(cur.x, cur.y, cur.width, cur.height);
 	}
     qsort(pts, finderblobssize, sizeof(ofVec2f), compare);
-    int mmsleep = raysleep / (finderblobssize+1) ; 
-	for(int i = 0; i < finderblobssize; i++) 
+    int tempptsy = 56;
+    for(int i = 0; i < finderblobssize; i++) 
     {
-        //mm.setAddress("/D57");
-        mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
+        tempptsy = ( (int)pts[i].y << 6 );
+        mm.setAddress("/D57");
+        //mm.setAddress("/D" + ofToString( tempptsy / rayy) );
         mm.addIntArg(100);
+        sTimer.sixtyfour[tempptsy] = 2;
         sender.sendMessage(mm);
         mm.clear();
         //ofRect(pts[i].x, pts[i].y, 20, 20);
-        ofSleepMillis(mmsleep);
-        //mm.setAddress("/D57");
-        mm.setAddress("/D" + ofToString( ( (int)pts[i].y << 6 ) / rayy) );
-        mm.addIntArg(0);
-        sender.sendMessage(mm);
-        mm.clear();
+    }
+
+    for(int rayi = 0; rayi < 64; rayi++)
+    {
+        if(sTimer.sixtyfour[rayi] == 1)
+        {
+            mm.setAddress("/D57");
+            //mm.setAddress("/D" + ofToString(rayi+1) );
+            mm.addIntArg(0);
+            sender.sendMessage(mm);
+            mm.clear();
+        }
+    }
+
+    if(nextTime > 2000000000)
+    {
+        nextTime = 0;
+        timer->restart();
     }
 }
 

@@ -4,13 +4,44 @@
 #include "ofxCvHaarFinder.h"
 #include "ofxOsc.h"
 
+#include "Poco/Stopwatch.h"
+#include "Poco/Thread.h"
+#include "Poco/Timestamp.h"
+#include "Poco/Timer.h"
+
+using Poco::Stopwatch;
+using Poco::Thread;
+using Poco::Timer;
+using Poco::TimerCallback;
+
 #define rayx    960
 #define rayy    720
 #define MAX_N_PTS         15
 #define RAYDRAW
-#define HOST "192.168.11.157"
+#define HOST "192.168.11.255"
 #define PORT 12345
 #define raysleep 300
+
+class seqTimer
+{
+    public:
+        void seqTimerFunc(Poco::Timestamp::TimeDiff curTime); // prototype of my function
+
+        seqTimer()
+        {
+            stopwatch.start();
+        }
+    
+        void onTimer(Timer& timer)
+        {
+            seqTimerFunc(stopwatch.elapsed()); // function call
+        }
+    
+        int sixtyfour[64];
+    
+    private:
+        Stopwatch stopwatch;
+};
 
 class testApp : public ofBaseApp{
 	public:
@@ -37,4 +68,8 @@ class testApp : public ofBaseApp{
         ofxOscMessage mm;
     
         int finderblobssize;
+        
+        // and I declare in class testApp : public ofBaseApp
+        seqTimer sTimer;
+        Timer * timer;
 };
