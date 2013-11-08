@@ -71,9 +71,9 @@ void testApp::draw(){
     int tempptsy = 56;
     for(int i = 0; i < finderblobssize; i++) 
     {
-        tempptsy = ( (int)pts[i].y << 6 );
+        tempptsy = 64 - ( ( (int)pts[i].y << 6 ) / rayy );
         //mm.setAddress("/D57");
-        mm.setAddress("/D" + ofToString( tempptsy / rayy) );
+        mm.setAddress("/D" + ofToString(tempptsy) );
         mm.addIntArg(100);
         mm.addIntArg( ( (int)pts[i].x << 4 ) / rayx ); // must be <= new iPad's NUM_MSG_STRINGS
         sTimer.sixtyfour[tempptsy] = 2;
