@@ -20,7 +20,7 @@ using Poco::TimerCallback;
 #define RAYDRAW
 #define HOST "192.168.11.255"
 #define PORT 12345
-#define raysleep 300
+#define raysleep 200
 
 class seqTimer
 {
@@ -37,7 +37,8 @@ class seqTimer
             seqTimerFunc(stopwatch.elapsed()); // function call
         }
     
-        int sixtyfour[64];
+        int sixtyfour[64], twenty[20];
+        //bool haveyou[64], already[20];
     
     private:
         Stopwatch stopwatch;
