@@ -22,6 +22,8 @@ using Poco::TimerCallback;
 #define PORT 12345
 #define raysleep 200
 
+#define PORTII 54321
+
 class seqTimer
 {
     public:
@@ -66,8 +68,9 @@ class testApp : public ofBaseApp{
         ofVideoGrabber 		vidGrabber;    
         ofVec2f	pts[MAX_N_PTS];
         ofxOscSender sender;
-        ofxOscMessage mm;
-    
+        ofxOscMessage mm,mmmm;
+        ofxOscReceiver receiver;
+        
         int finderblobssize;
         
         // and I declare in class testApp : public ofBaseApp

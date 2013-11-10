@@ -39,7 +39,7 @@ void testApp::setup(){
     finderblobssize = 0;
     // open an outgoing connection to HOST:PORT
 	sender.setup(HOST, PORT);
-    
+    receiver.setup(PORTII);
     // and in the method void testApp::setup()
     timer = new Timer(0, 10); // parameters : immediate and delay of 10 milliseconds (fast enough i think)
     timer->start(TimerCallback<seqTimer>(sTimer, &seqTimer::onTimer), Thread::PRIO_HIGHEST);
@@ -142,6 +142,35 @@ void testApp::draw(){
         mm.clear();
         
         //ofRect(pts[i].x, pts[i].y, 20, 20);
+    }
+
+    // check for waiting messages
+	while(receiver.hasWaitingMessages())
+    {
+		// get the next message
+		receiver.getNextMessage(&mmmm);
+        
+		// check for mouse moved message
+		if(mmmm.getAddress() == "/3/toggle1")
+        {
+			// both the arguments are int32's
+			mm.setAddress("/MIDI");
+            mm.addFloatArg(mmmm.getArgAsFloat(0));
+            sender.sendMessage(mm);
+            mm.clear();
+        }
+		// check for mouse button message
+		else if(mmmm.getAddress() == "/3/toggle2")
+        {
+			// both the arguments are int32's
+			mm.setAddress("/OSC");
+            mm.addFloatArg(mmmm.getArgAsFloat(0));
+            sender.sendMessage(mm);
+            mm.clear();
+        }
+        
+        mmmm.clear();
+        
     }
 
     for(int rayi = 0; rayi < 58; rayi++)
