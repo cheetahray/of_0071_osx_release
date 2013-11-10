@@ -82,8 +82,8 @@ void testApp::draw(){
     {
         tempptsy = 58 - ( ( (int)pts[i].y * 58 ) / rayy );
         tempptsx = 1 + ( (int)pts[i].x * 20 ) / rayx;
-        mm.setAddress("/D57");
-        //mm.setAddress("/D" + ofToString(tempptsy) );
+        //mm.setAddress("/D57");
+        mm.setAddress("/D" + ofToString(tempptsy) );
         mm.addIntArg(127);
         mm.addIntArg( tempptsx ); // must be <= new iPad's NUM_MSG_STRINGS
         sTimer.sixtyfour[tempptsy-1] = 2;
@@ -177,8 +177,8 @@ void testApp::draw(){
     {
         if( 0 == sTimer.sixtyfour[rayi] && false == sTimer.haveyou[rayi] )
         {
-            mm.setAddress("/D57");
-            //mm.setAddress("/D" + ofToString(rayi+1) );
+            //mm.setAddress("/D57");
+            mm.setAddress("/D" + ofToString(rayi+1) );
             mm.addIntArg(0);
             sender.sendMessage(mm);
             mm.clear();
