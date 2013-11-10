@@ -38,7 +38,7 @@ class seqTimer
         }
     
         int sixtyfour[64], twenty[20];
-        //bool haveyou[64], already[20];
+        bool haveyou[64], already[20];
     
     private:
         Stopwatch stopwatch;

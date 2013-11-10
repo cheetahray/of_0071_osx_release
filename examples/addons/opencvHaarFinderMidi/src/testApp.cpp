@@ -82,24 +82,22 @@ void testApp::draw(){
     {
         tempptsy = 58 - ( ( (int)pts[i].y * 58 ) / rayy );
         tempptsx = 1 + ( (int)pts[i].x * 20 ) / rayx;
-        //mm.setAddress("/D57");
-        mm.setAddress("/D" + ofToString(tempptsy) );
+        mm.setAddress("/D57");
+        //mm.setAddress("/D" + ofToString(tempptsy) );
         mm.addIntArg(127);
         mm.addIntArg( tempptsx ); // must be <= new iPad's NUM_MSG_STRINGS
         sTimer.sixtyfour[tempptsy-1] = 2;
-        //sTimer.haveyou[tempptsy-1] = false;
+        sTimer.haveyou[tempptsy-1] = false;
         sender.sendMessage(mm);
         mm.clear();
         
-        //mm.setAddress("/D57");
         mm.setAddress("/2/multifader/" + ofToString(tempptsx) );
         mm.addIntArg(tempptsy);
         sTimer.twenty[tempptsx-1] = 4;
-        //sTimer.already[tempptsx-1] = false;
+        sTimer.already[tempptsx-1] = false;
         sender.sendMessage(mm);
         mm.clear();
         
-        //mm.setAddress("/D57");
         mm.setAddress("/2/label" + ofToString(20 + tempptsx) );
         switch(tempptsy%12)
         {
@@ -148,31 +146,29 @@ void testApp::draw(){
 
     for(int rayi = 0; rayi < 58; rayi++)
     {
-        if( 1 == sTimer.sixtyfour[rayi] /*&& false == sTimer.haveyou[rayi]*/ )
+        if( 0 == sTimer.sixtyfour[rayi] && false == sTimer.haveyou[rayi] )
         {
-            //mm.setAddress("/D57");
-            mm.setAddress("/D" + ofToString(rayi+1) );
+            mm.setAddress("/D57");
+            //mm.setAddress("/D" + ofToString(rayi+1) );
             mm.addIntArg(0);
             sender.sendMessage(mm);
             mm.clear();
-            //sTimer.haveyou[rayi] = true;
+            sTimer.haveyou[rayi] = true;
         }
         
-        if(rayi < 20 && 1 == sTimer.twenty[rayi] /*&& false == sTimer.already[rayi]*/ )
+        if(rayi < 20 && 0 == sTimer.twenty[rayi] && false == sTimer.already[rayi] )
         {
-            //mm.setAddress("/D57");
             mm.setAddress("/2/multifader/" + ofToString(rayi+1) );
             mm.addIntArg(0);
             sender.sendMessage(mm);
             mm.clear();
             
-            //mm.setAddress("/D57");
             mm.setAddress("/2/label" + ofToString(rayi+21) );
             mm.addStringArg("");
             sender.sendMessage(mm);
             mm.clear();
             
-            //sTimer.already[rayi] = true;
+            sTimer.already[rayi] = true;
         }
     }
 
