@@ -150,24 +150,10 @@ void testApp::draw(){
 		// get the next message
 		receiver.getNextMessage(&mmmm);
         
-		// check for mouse moved message
-		if(mmmm.getAddress() == "/3/toggle1")
-        {
-			// both the arguments are int32's
-			mm.setAddress("/MIDI");
-            mm.addFloatArg(mmmm.getArgAsFloat(0));
-            sender.sendMessage(mm);
-            mm.clear();
-        }
-		// check for mouse button message
-		else if(mmmm.getAddress() == "/3/toggle2")
-        {
-			// both the arguments are int32's
-			mm.setAddress("/OSC");
-            mm.addFloatArg(mmmm.getArgAsFloat(0));
-            sender.sendMessage(mm);
-            mm.clear();
-        }
+		mm.setAddress(mmmm.getAddress());
+        mm.addFloatArg(mmmm.getArgAsFloat(0));
+        sender.sendMessage(mm);
+        mm.clear();
         
         mmmm.clear();
         
