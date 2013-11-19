@@ -40,6 +40,7 @@ void testApp::setup(){
     totalPixels = rayx*rayy;
     videoInverted 	= new unsigned char[totalPixels*3];
     finderblobssize = tempptsx = 0;
+    iPadFace = 1;
     // open an outgoing connection to HOST:PORT
 	sender.setup(HOST, PORT);
     receiver.setup(PORTII);
@@ -56,25 +57,29 @@ int compare (const void * a, const void * b)
 //--------------------------------------------------------------
 void testApp::update(){
     vidGrabber.grabFrame();
-    unsigned char * pixels = vidGrabber.getPixels();
-    for (int i = 0; i < totalPixels; i++)
+    if(vidGrabber.isFrameNew())
     {
-        int raymiddle = i%rayx;
-        int rayii = i*3;
-        if(raymiddle >= 364 && raymiddle <= 596)
+        unsigned char * pixels = vidGrabber.getPixels();
+        for (int i = 0; i < totalPixels; i++)
         {
-            memcpy(videoInverted + rayii, pixels + rayii, 3);
+            int raymiddle = i%rayx;
+            int rayii = i*3;
+            if(raymiddle >= 364 && raymiddle <= 596)
+            {
+                memcpy(videoInverted + rayii, pixels + rayii, 3);
+            }
+            else
+            {
+                videoInverted[rayii] = videoInverted[rayii+1] = videoInverted[rayii+2] = 0;
+            }
         }
-        else
-        {
-            videoInverted[rayii] = videoInverted[rayii+1] = videoInverted[rayii+2] = 0;
-        }
-    }
-    colorImg.setFromPixels(videoInverted, rayx,rayy);
-    grayImage = colorImg;
-    finder.findHaarObjects(grayImage);
+        colorImg.setFromPixels(videoInverted, rayx,rayy);
+        grayImage = colorImg;
+        if(iPadFace > 0)
+            finder.findHaarObjects(grayImage);
     
-    //ofSleepMillis(raysleep);
+        //ofSleepMillis(raysleep);
+    }
 }
 
 //--------------------------------------------------------------
@@ -84,7 +89,7 @@ void testApp::draw()
 #ifdef RAYDRAW
 	grayImage.draw(0, 0);
 #endif
-    finderblobssize = min(finder.blobs.size(),MAX_N_PTS) ;
+    finderblobssize = iPadFace>0?min(finder.blobs.size(),MAX_N_PTS):0;
     /*
     for(int i = 0; i < finderblobssize; i++) 
     {
@@ -195,11 +200,18 @@ void testApp::draw()
 		// get the next message
 		receiver.getNextMessage(&mmmm);
         
-		mm.setAddress(mmmm.getAddress());
-        mm.addFloatArg(mmmm.getArgAsFloat(0));
-        sender.sendMessage(mm);
-        mm.clear();
-        
+        if(mmmm.getAddress() == "/FACE")
+        {
+            iPadFace = mmmm.getArgAsFloat(0);
+        }
+        else 
+        {
+            mm.setAddress(mmmm.getAddress());
+            mm.addFloatArg(mmmm.getArgAsFloat(0));
+            sender.sendMessage(mm);
+            mm.clear();
+        }
+		
         mmmm.clear();
         
     }

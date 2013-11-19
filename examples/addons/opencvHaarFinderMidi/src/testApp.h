@@ -79,4 +79,5 @@ class testApp : public ofBaseApp{
         Timer * timer;
     
         unsigned char * 	videoInverted;
+        float iPadFace;
 };
