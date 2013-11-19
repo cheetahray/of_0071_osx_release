@@ -2,7 +2,7 @@
 
 #define min(a, b)  (((a) < (b)) ? (a) : (b)) 
 
-Poco::Timestamp::TimeDiff hdelay = 300000; // delay between 2 events, in microseconds
+Poco::Timestamp::TimeDiff hdelay = 1000000; // delay between 2 events, in microseconds
 Poco::Timestamp::TimeDiff nextTime = 0;    // time when next event occurs (calculated in seqTimerFunc)
 
 void seqTimer::seqTimerFunc(Poco::Timestamp::TimeDiff curTime)
@@ -30,12 +30,15 @@ void seqTimer::seqTimerFunc(Poco::Timestamp::TimeDiff curTime)
 
 //--------------------------------------------------------------
 void testApp::setup(){
+    ofHideCursor();
 	//img.loadImage("test.jpg");
 	finder.setup("parojosG.xml");    //parojos
 	vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(rayx,rayy);
     colorImg.allocate(rayx,rayy);
 	grayImage.allocate(rayx,rayy);
+    totalPixels = rayx*rayy;
+    videoInverted 	= new unsigned char[totalPixels*3];
     finderblobssize = tempptsx = 0;
     // open an outgoing connection to HOST:PORT
 	sender.setup(HOST, PORT);
@@ -53,50 +56,73 @@ int compare (const void * a, const void * b)
 //--------------------------------------------------------------
 void testApp::update(){
     vidGrabber.grabFrame();
-    colorImg.setFromPixels(vidGrabber.getPixels(), rayx,rayy);
+    unsigned char * pixels = vidGrabber.getPixels();
+    for (int i = 0; i < totalPixels; i++)
+    {
+        int raymiddle = i%rayx;
+        int rayii = i*3;
+        if(raymiddle >= 364 && raymiddle <= 596)
+        {
+            memcpy(videoInverted + rayii, pixels + rayii, 3);
+        }
+        else
+        {
+            videoInverted[rayii] = videoInverted[rayii+1] = videoInverted[rayii+2] = 0;
+        }
+    }
+    colorImg.setFromPixels(videoInverted, rayx,rayy);
     grayImage = colorImg;
     finder.findHaarObjects(grayImage);
     
-    ofSleepMillis(raysleep);
+    //ofSleepMillis(raysleep);
 }
 
 //--------------------------------------------------------------
-void testApp::draw(){
+void testApp::draw()
+{
+    ofTranslate(-192, 0);
 #ifdef RAYDRAW
 	grayImage.draw(0, 0);
-	ofNoFill();
 #endif
     finderblobssize = min(finder.blobs.size(),MAX_N_PTS) ;
+    /*
     for(int i = 0; i < finderblobssize; i++) 
     {
         ofRectangle cur = finder.blobs[i].boundingRect;
 		pts[i].set(cur.x + cur.width/2, cur.y + cur.height/2);
-        ofRect(cur.x, cur.y, cur.width, cur.height);
 	}
     qsort(pts, finderblobssize, sizeof(ofVec2f), compare);
-    
+    */
     int tempptsy = 56;
+    float rayline = 0;
+    string rayptsy;
     
-    if(++tempptsx > NUM_MSG_STRINGS)
+    if(tempptsx > NUM_MSG_STRINGS)
         tempptsx = 1;
     
     for(int i = 0; i < finderblobssize; i++) 
     {
-        tempptsy = 58 - ( ( (int)pts[i].y * 58 ) / rayy );
+        ofRectangle cur = finder.blobs[i].boundingRect;
+        
+        tempptsy = 58 - ( ( (int)cur.y * 58 ) / rayy );
         //tempptsx = 1 + ( (int)pts[i].x * NUM_MSG_STRINGS ) / rayx;
         //mm.setAddress("/D57");
         mm.setAddress("/D" + ofToString(tempptsy) );
         mm.addFloatArg(1);
         mm.addIntArg( tempptsx ); // must be <= new iPad's NUM_MSG_STRINGS
-        sTimer.sixtyfour[tempptsy-1] = 2;
+        sTimer.sixtyfour[tempptsy-1] = 1;
         sTimer.haveyou[tempptsy-1] = false;
         sender.sendMessage(mm);
         mm.clear();
         
+        
         mm.setAddress("/2/multifader/" + ofToString(tempptsx) );
         mm.addIntArg(tempptsy);
-        sTimer.twenty[tempptsx-1] = 4;
-        sTimer.already[tempptsx-1] = false;
+        if(true == sTimer.already[tempptsx-1])
+        {
+            sTimer.twenty[tempptsx-1] = 5;
+            sTimer.already[tempptsx-1] = false;
+        }
         sender.sendMessage(mm);
         mm.clear();
         
@@ -104,46 +130,63 @@ void testApp::draw(){
         switch(tempptsy%12)
         {
             case 0:
-                mm.addStringArg("Ti");
+                rayptsy = "Ti";
                 break;
             case 1:
-                mm.addStringArg("Do");
+                rayptsy = "Do";
                 break;
             case 2:
-                mm.addStringArg("Do+");
+                rayptsy = "Do+";
                 break;
             case 3:
-                mm.addStringArg("Re");
+                rayptsy = "Re";
                 break;
             case 4:
-                mm.addStringArg("Re+");
+                rayptsy = "Re+";
                 break;
             case 5:
-                mm.addStringArg("Mi");
+                rayptsy = "Mi";
                 break;
             case 6:
-                mm.addStringArg("Fa");
+                rayptsy = "Fa";
                 break;
             case 7:
-                mm.addStringArg("Fa+");
+                rayptsy = "Fa+";
                 break;
             case 8:
-                mm.addStringArg("So");
+                rayptsy = "So";
                 break;
             case 9:
-                mm.addStringArg("So+");
+                rayptsy = "So+";
                 break;
             case 10:
-                mm.addStringArg("La");
+                rayptsy = "La";
                 break;
             case 11:
-                mm.addStringArg("La+");
+                rayptsy = "La+";
                 break;
         }
+        mm.addStringArg(rayptsy);
         sender.sendMessage(mm);
         mm.clear();
         
-        //ofRect(pts[i].x, pts[i].y, 20, 20);
+        ofNoFill();
+		ofRect(cur.x, cur.y, cur.width, cur.height);
+        rayline = cur.y+cur.height/2;
+        ofFill();
+        if(i%2 == 0)
+        {
+            ofLine(300, rayline, cur.x, rayline);
+            ofCircle(300, rayline, 3);
+            ofDrawBitmapString(rayptsy.insert(0," ").insert(0,ofToString(rayline)), 210, rayline);
+        }
+        else
+        {
+            ofLine(cur.x+cur.width, rayline, 660, rayline);
+            ofCircle(660, rayline, 3);
+            ofDrawBitmapString(rayptsy.insert(0," ").insert(0,ofToString(rayline)), 670, rayline);
+        }
+        
     }
 
     // check for waiting messages
@@ -185,6 +228,7 @@ void testApp::draw(){
             sender.sendMessage(mm);
             mm.clear();
             
+            tempptsx++;
             sTimer.already[rayi] = true;
         }
     }

@@ -21,7 +21,7 @@ using Poco::TimerCallback;
 #define RAYDRAW
 #define HOST "192.168.11.255"
 #define PORT 12345
-#define raysleep 150
+//#define raysleep 150
 
 #define PORTII 54321
 
@@ -67,14 +67,16 @@ class testApp : public ofBaseApp{
         ofxCvColorImage			colorImg;
         ofxCvGrayscaleImage 	grayImage;
         ofVideoGrabber 		vidGrabber;    
-        ofVec2f	pts[MAX_N_PTS];
+        //ofVec2f	pts[MAX_N_PTS];
         ofxOscSender sender;
         ofxOscMessage mm,mmmm;
         ofxOscReceiver receiver;
         
-        int finderblobssize, tempptsx;
+        int finderblobssize, tempptsx, totalPixels;
         
         // and I declare in class testApp : public ofBaseApp
         seqTimer sTimer;
         Timer * timer;
+    
+        unsigned char * 	videoInverted;
 };
