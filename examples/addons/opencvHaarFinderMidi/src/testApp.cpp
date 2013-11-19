@@ -18,7 +18,7 @@ void seqTimer::seqTimerFunc(Poco::Timestamp::TimeDiff curTime)
                 sixtyfour[rayi]--;
             }
             
-            if(rayi < 20 && twenty[rayi] > 0)
+            if(rayi < NUM_MSG_STRINGS && twenty[rayi] > 0)
             {
                 twenty[rayi]--;
             }
@@ -36,7 +36,7 @@ void testApp::setup(){
     vidGrabber.initGrabber(rayx,rayy);
     colorImg.allocate(rayx,rayy);
 	grayImage.allocate(rayx,rayy);
-    finderblobssize = 0;
+    finderblobssize = tempptsx = 0;
     // open an outgoing connection to HOST:PORT
 	sender.setup(HOST, PORT);
     receiver.setup(PORTII);
@@ -76,12 +76,14 @@ void testApp::draw(){
     qsort(pts, finderblobssize, sizeof(ofVec2f), compare);
     
     int tempptsy = 56;
-    int tempptsx = 0;
+    
+    if(++tempptsx > NUM_MSG_STRINGS)
+        tempptsx = 1;
     
     for(int i = 0; i < finderblobssize; i++) 
     {
         tempptsy = 58 - ( ( (int)pts[i].y * 58 ) / rayy );
-        tempptsx = 1 + ( (int)pts[i].x * 20 ) / rayx;
+        //tempptsx = 1 + ( (int)pts[i].x * NUM_MSG_STRINGS ) / rayx;
         //mm.setAddress("/D57");
         mm.setAddress("/D" + ofToString(tempptsy) );
         mm.addFloatArg(1);
@@ -171,7 +173,7 @@ void testApp::draw(){
             sTimer.haveyou[rayi] = true;
         }
         
-        if(rayi < 20 && 0 == sTimer.twenty[rayi] && false == sTimer.already[rayi] )
+        if(rayi < NUM_MSG_STRINGS && 0 == sTimer.twenty[rayi] && false == sTimer.already[rayi] )
         {
             mm.setAddress("/2/multifader/" + ofToString(rayi+1) );
             mm.addIntArg(0);

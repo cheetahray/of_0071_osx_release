@@ -17,10 +17,11 @@ using Poco::TimerCallback;
 #define rayx    960
 #define rayy    720
 #define MAX_N_PTS         15
+#define NUM_MSG_STRINGS   20
 #define RAYDRAW
 #define HOST "192.168.11.255"
 #define PORT 12345
-#define raysleep 200
+#define raysleep 150
 
 #define PORTII 54321
 
@@ -39,8 +40,8 @@ class seqTimer
             seqTimerFunc(stopwatch.elapsed()); // function call
         }
     
-        int sixtyfour[64], twenty[20];
-        bool haveyou[64], already[20];
+        int sixtyfour[64], twenty[NUM_MSG_STRINGS];
+        bool haveyou[64], already[NUM_MSG_STRINGS];
     
     private:
         Stopwatch stopwatch;
@@ -71,7 +72,7 @@ class testApp : public ofBaseApp{
         ofxOscMessage mm,mmmm;
         ofxOscReceiver receiver;
         
-        int finderblobssize;
+        int finderblobssize, tempptsx;
         
         // and I declare in class testApp : public ofBaseApp
         seqTimer sTimer;
